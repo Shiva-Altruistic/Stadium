@@ -16,7 +16,7 @@
 [![Tests](https://img.shields.io/badge/tests-65%20passing-brightgreen?style=flat-square)](#-testing)
 [![Coverage](https://img.shields.io/badge/coverage-~98%25-brightgreen?style=flat-square)](#-testing)
 
-**[📂 Repository](https://github.com/Adityaraj1969/Smart-Stadiums-Tournament-Operations)** · *🚀 Deployment coming soon*
+**[📂 Repository](https://github.com/Shiva-Altruistic/Stadium)** · *🚀 [Live Vercel Deployment](https://stadiumpulse-ai-rho.vercel.app)*
 
 </div>
 
@@ -37,6 +37,10 @@ duty manager asking *"what do I do about Concourse South at 91% density?"*
 
 ## 📑 Table of contents
 
+- [Chosen Vertical](#-chosen-vertical)
+- [Approach & Logic](#-approach--logic)
+- [How the Solution Works](#-how-the-solution-works)
+- [Assumptions Made](#-assumptions-made)
 - [Two views, one platform](#-two-views-one-platform)
 - [Feature mapping](#-how-this-maps-to-the-brief)
 - [Architecture](#-architecture)
@@ -47,6 +51,34 @@ duty manager asking *"what do I do about Concourse South at 91% density?"*
 - [Testing](#-testing)
 - [Efficiency](#-efficiency)
 - [Limitations & roadmap](#-honest-limitations--roadmap)
+
+## 🎯 Chosen Vertical
+
+This project targets **Challenge 4: Smart Stadiums & Tournament Operations** for the **FIFA World Cup 2026**. It focuses on solving real-time venue communication gaps, crowd density management, accessibility wayfinding, transport coordination, multilingual volunteer-fan translation, and duties manager triage.
+
+## 🧠 Approach & Logic
+
+Our design philosophy focuses on **reliability, security, and low-latency response delivery**:
+1. **Client/Server Split**: Frontend does not talk directly to LLMs. All calls flow through Express `/api/*` endpoints. This keeps API keys secure on the server side and protects the application from credential leaks.
+2. **Provider-Agnostic Model Client**: The backend wraps Groq and Gemini clients in a unified interface. You can switch LLM engines by editing a single environment variable (`GENAI_PROVIDER=groq|gemini`) without altering routing code or test assertions.
+3. **In-Memory Cache Layer**: LLM calls are cached on the server for 5 minutes. Similar questions ("where is the sensory room?") or crowd sensor states get answered instantly, conserving rate limits and reducing user wait times.
+4. **Regular Expression Escaping**: In contrast to standard DOM element creation hacks which create garbage-collection spikes, we use custom high-performance regex replacement helper functions for frontend output sanitization.
+5. **Native CSS Variables for System Aesthetics**: We use CSS Custom Properties to automatically apply high-contrast dark mode to dark-mode enabled operating systems, promoting high accessibility and design aesthetics.
+
+## ⚙️ How the Solution Works
+
+StadiumPulse AI is designed around a unified status picture:
+1. **Live Scanning Loop**: Reconciled data feeds (estimated seated vs scanned ticket metrics) drive the status widgets in both tabs.
+2. **AI Triage Flow**: Fan-submitted reports are instantly triaged by the model. The model extracts severity (`low|medium|high|critical`), classifies it (`medical|security|crowd|etc`), recommends actions, and routes the ticket to the Ops Team list.
+3. **Multilingual Concierge**: Fans select their language, and all AI Concierge responses are translated on the fly while utilizing pre-compiled facts (restrooms, sensory room gates, etc) to ensure the AI never invents routes.
+4. **Quick Translate**: Volunteers type in English and instantly translate instructions into 8 target languages for direct fan assistance.
+5. **Real-time Operations Updates**: The Ops Team can broadcast critical directives directly onto the Fan Status dashboard.
+
+## 📋 Assumptions Made
+
+- **Sensor Data Structure**: We assume that turnstile scan numbers and seated seat counts will be parsed into an JSON array matching `[{ zone, densityPercent, trend }]` format on import.
+- **Rate-limit Caps**: We assume that free-tier API endpoints have rate-limits of around 30 requests/minute, hence the use of server-side caching and aggressive validation limits (20kb body cap, 20 req/min rate limit).
+- **Authentication Scope**: For this prototype, we assume that network isolation handles role access, so we do not enforce multi-tenant OAuth authentication for the Ops Team tab.
 
 ## 🧭 Two views, one platform
 
@@ -248,7 +280,7 @@ cd frontend && npm test   # frontend suite
 - No authentication yet on the Ops Team tab — any user can access the staff/organizer tools.
 - Both free providers are rate-limited (Groq ~30 req/min); a multi-stadium rollout would move to a
   paid tier — the one-line `GENAI_PROVIDER` switch means that upgrade touches no route or test.
-- 🚀 **Deployment coming soon** — the application will be hosted publicly once deployment is configured.
+- 🚀 **Live Vercel Deployment** — The application is live and hosted publicly at [stadiumpulse-ai-rho.vercel.app](https://stadiumpulse-ai-rho.vercel.app).
 
 ---
 
