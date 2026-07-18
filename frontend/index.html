@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StadiumPulse AI — FIFA World Cup 2026 Smart Stadium Operations</title>
+  <meta name="description" content="GenAI-enabled navigation, crowd management, accessibility, transportation, sustainability, multilingual assistance, and operational intelligence for FIFA World Cup 2026 venues." />
+
+  <!-- Content-Security-Policy: all AI calls go through the backend (/api/*),
+       so connect-src is locked to 'self' — no external model API needed. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data:; script-src 'self'; frame-ancestors 'none';" />
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-text-size="normal">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="live-region" class="visually-hidden" role="status" aria-live="polite"></div>
+
+  <header class="app-header">
+    <p class="wordmark">StadiumPulse <span aria-hidden="true">AI</span><span class="tagline">FIFA World Cup 2026 · Smart Stadium Ops</span></p>
+
+    <nav class="persona-tabs" role="tablist" aria-label="Choose your role">
+      <button role="tab" id="tab-fan" aria-selected="true" tabindex="0" aria-controls="view-fan">Fan</button>
+      <button role="tab" id="tab-ops" aria-selected="false" tabindex="-1" aria-controls="view-ops">Ops Team</button>
+    </nav>
+
+    <div class="header-controls">
+      <label for="language-select">Language</label>
+      <select id="language-select" aria-describedby="language-select-hint"></select>
+      <span id="language-select-hint" class="visually-hidden">Sets the language used by the fan concierge.</span>
+      <button type="button" class="text-toggle" id="text-size-toggle" aria-pressed="false">A+ Larger text</button>
+    </div>
+  </header>
+
+  <!-- Calm "screen" status display — replaces the old scrolling ticker.
+       Messages cross-fade every few seconds instead of flickering. -->
+  <section class="pulse-screen" aria-label="Live operations pulse">
+    <div class="pulse-screen-inner">
+      <span class="pulse-dot" aria-hidden="true"></span>
+      <span class="pulse-live-label">LIVE</span>
+      <span class="pulse-clock" id="clock">--:--</span>
+      <p class="pulse-message" id="pulse-message" aria-live="off">Loading live status…</p>
+    </div>
+  </section>
+
+  <main id="main-content">
+    <div id="error-banner" class="error-banner" role="alert" hidden></div>
+
+    <!-- ============================= FAN VIEW ============================= -->
+    <section id="view-fan" class="persona-view" role="tabpanel" aria-labelledby="tab-fan">
+      <div class="view-grid two-col">
+        <div class="col-left">
+          <div class="panel" data-accent="pitch">
+            <h2 id="status-title">Live Stadium Status</h2>
+            <div class="status-row"><span class="status-label" id="gate-status-label">Gate Status</span><span class="status-value" id="gate-status">—</span></div>
+            <div class="status-row"><span class="status-label" id="crowd-status-label">Crowd Density</span><span class="status-value" id="crowd-status">—</span></div>
+            <div class="broadcast-banner" id="broadcast-banner">
+              <span class="broadcast-label">Ops Team update</span>
+              <p class="broadcast-text" id="fan-broadcast-text">No active fan update.</p>
+            </div>
+          </div>
+          <div class="panel" data-accent="pitch">
+            <div class="feature-cards" id="feature-cards"><!-- populated by app.js --></div>
+          </div>
+          <div class="panel" data-accent="coral">
+            <h2 id="report-issue-title">Report your issue</h2>
+            <p class="panel-sub" id="report-issue-sub">Tell us what's wrong — your report goes straight to the ops team.</p>
+            <form id="incident-form">
+              <label for="incident-input" class="visually-hidden">Describe what you're seeing</label>
+              <textarea id="incident-input" rows="3" class="full-width" maxlength="500" placeholder="e.g. Can't find step-free route to Section 208" required></textarea>
+              <div class="inline-row">
+                <button type="submit" class="primary-button mt-sm" id="incident-submit">Submit report</button>
+                <button type="button" class="ghost-button mt-sm" id="incident-example">Try example</button>
+              </div>
+            </form>
+            <p class="report-confirm" id="fan-report-confirm" hidden role="status">Report received — the ops team has been notified.</p>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="panel chat-panel" data-accent="gold">
+            <h2>AI Support <span class="eyebrow">multilingual · answers in your selected language</span></h2>
+            <div class="chat-log" id="chat-log" role="log" aria-label="Conversation with the AI concierge"></div>
+            <div class="chip-row" id="chat-chips"></div>
+            <form id="chat-form" class="chat-form">
+              <label for="chat-input" class="visually-hidden">Ask the concierge a question</label>
+              <input type="text" id="chat-input" maxlength="2000" required />
+              <button type="submit" class="primary-button" id="chat-submit">Ask</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= OPS VIEW (Staff + Organizer merged) ============================= -->
+    <section id="view-ops" class="persona-view" role="tabpanel" aria-labelledby="tab-ops" hidden>
+      <div class="view-grid two-col">
+        <div class="col-left">
+          <div class="panel" data-accent="coral">
+            <h2>Field report logs</h2>
+            <p class="panel-sub">AI-triaged reports from fans and staff, newest first.</p>
+            <ul class="incident-list" id="incident-list" aria-label="Recent field reports"></ul>
+            <p class="logs-empty" id="logs-empty">No reports yet — fan and staff submissions will appear here.</p>
+          </div>
+          <div class="panel" data-accent="pitch">
+            <h2>Send a fan update</h2>
+            <p class="panel-sub">Broadcast a message to the live stadium status panel on the Fan tab.</p>
+            <form id="ops-broadcast-form">
+              <label for="ops-broadcast-input" class="visually-hidden">Message to broadcast to fans</label>
+              <textarea id="ops-broadcast-input" rows="2" class="full-width" maxlength="240" placeholder="e.g. Gate 7 is now open — follow staff directions to the west concourse"></textarea>
+              <button type="submit" class="primary-button mt-sm">Send to fans</button>
+            </form>
+          </div>
+          <div class="panel" data-accent="blue">
+            <h2>Quick translate <span class="eyebrow">for talking with fans</span></h2>
+            <label for="translate-input" class="visually-hidden">Text to translate</label>
+            <textarea id="translate-input" rows="2" class="full-width" maxlength="600" placeholder="Type an announcement in English…"></textarea>
+            <div class="inline-row">
+              <label for="translate-target" class="label-sm">to</label>
+              <select id="translate-target"></select>
+              <button type="button" class="primary-button" id="translate-submit">Translate</button>
+            </div>
+            <div class="advisory-output" id="translate-output" aria-live="polite">Translation will appear here.</div>
+          </div>
+        </div>
+        <div class="col-right">
+          <div class="panel panel-full" data-accent="blue">
+            <h2>Crowd density &amp; operational intelligence <span class="eyebrow">gate scans vs. reconciled seated count</span></h2>
+            <form id="crowd-form">
+              <div id="zone-rows"><!-- populated by app.js --></div>
+              <button type="submit" class="primary-button mt-sm">Generate advisory</button>
+            </form>
+            <div class="advisory-output" id="advisory-output" aria-live="polite">Advisory will appear here.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <span>StadiumPulse AI — Challenge 4: Smart Stadiums &amp; Tournament Operations · Prototype for demonstration purposes</span>
+  </footer>
+
+  <!-- Emergency SOS: fixed, always reachable, real modal flow -->
+  <button type="button" class="sos-fab" id="sos-trigger" aria-haspopup="dialog">
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <span>SOS</span>
+</button>
+
+<div class="sos-overlay" id="sos-overlay" hidden>
+  <div class="sos-modal" role="dialog" aria-modal="true" aria-labelledby="sos-title" id="sos-modal">
+    <div id="sos-body"></div>
+  </div>
+</div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

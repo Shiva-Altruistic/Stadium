@@ -1,0 +1,16 @@
+{
+  "name": "stadiumpulse-ai-frontend",
+  "version": "1.0.0",
+  "description": "Static frontend for StadiumPulse AI — unit tests target the pure helper functions in js/utils.js",
+  "private": true,
+  "scripts": {
+    "test": "jest --runInBand"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
+  }
+}
