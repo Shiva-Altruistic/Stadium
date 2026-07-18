@@ -6,9 +6,12 @@ function qsa(sel, root) { return Array.from((root || document).querySelectorAll(
 
 function escapeHtml(str) {
   if (str === null || typeof str === 'undefined') return '';
-  const div = document.createElement('div');
-  div.textContent = String(str);
-  return div.innerHTML;
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function announce(msg) {

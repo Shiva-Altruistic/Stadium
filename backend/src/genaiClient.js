@@ -72,6 +72,27 @@ async function callWithTimeout(url, options, timeoutMs) {
   }
 }
 
+const responseCache = new Map();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes TTL
+
+function getCachedResponse(system, userContent, maxTokens, providerName, model) {
+  const key = JSON.stringify({ system, userContent, maxTokens, providerName, model });
+  const cached = responseCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.result;
+  }
+  return null;
+}
+
+function setCachedResponse(system, userContent, maxTokens, providerName, model, result) {
+  const key = JSON.stringify({ system, userContent, maxTokens, providerName, model });
+  if (responseCache.size >= 100) {
+    const oldestKey = responseCache.keys().next().value;
+    responseCache.delete(oldestKey);
+  }
+  responseCache.set(key, { result, timestamp: Date.now() });
+}
+
 /**
  * Sends one turn to whichever provider is configured and returns plain text.
  *
@@ -82,6 +103,12 @@ async function callWithTimeout(url, options, timeoutMs) {
 async function generate(system, userContent, maxTokens = 400) {
   const { provider, providerName, apiKey } = resolveProvider();
   const model = process.env.GENAI_MODEL || provider.DEFAULT_MODEL;
+
+  const cached = getCachedResponse(system, userContent, maxTokens, providerName, model);
+  if (cached) {
+    return cached;
+  }
+
   const { url, headers, body } = provider.buildRequest({
     system, userContent, maxTokens, apiKey, model,
   });
@@ -110,7 +137,9 @@ async function generate(system, userContent, maxTokens = 400) {
       }
 
       const data = await response.json();
-      return provider.parseResponse(data);
+      const result = provider.parseResponse(data);
+      setCachedResponse(system, userContent, maxTokens, providerName, model, result);
+      return result;
     } catch (err) {
       if (err instanceof GenAIError) throw err; // non-retryable, propagate now
       lastError = err;

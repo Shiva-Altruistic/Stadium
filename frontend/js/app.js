@@ -323,6 +323,7 @@ function initTabs() {
     tab.addEventListener('click', () => select(tab));
     tab.addEventListener('keydown', (e) => {
       if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault(); // Prevent page scroll behavior
       const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
       next.focus(); select(next);
     });

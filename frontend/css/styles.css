@@ -186,3 +186,37 @@ textarea, select#translate-target { border: 1px solid var(--line); border-radius
 
 /* ---------------- footer ---------------- */
 .app-footer { text-align: center; font-size: 0.78rem; color: var(--ink-soft); padding: 18px 24px 90px; }
+
+/* ---------------- dark mode ---------------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0F1615;
+    --card: #182321;
+    --teal: #14B8A6;
+    --teal-dk: #0D9488;
+    --gold: #FBBF24;
+    --pitch: #10B981;
+    --pitch-dk: #34D399;
+    --coral: #EF4444;
+    --amber: #F59E0B;
+    --blue: #14B8A6;
+    --ink: #E0E7E5;
+    --ink-soft: #94A3B8;
+    --line: #2D3E3B;
+  }
+  .broadcast-banner, .feature-card, .msg-ai, .sos-option {
+    background: #1C2B28;
+  }
+  .sos-modal {
+    background: #182321;
+  }
+  .report-confirm {
+    background: #1B3E2F;
+    color: #34D399;
+  }
+  .error-banner {
+    background: #3B1C1A;
+    color: #EF4444;
+    border-color: #EF4444;
+  }
+}
