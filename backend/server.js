@@ -99,12 +99,14 @@ function createApp() {
   return app;
 }
 
+const app = createApp();
+
 if (require.main === module) {
-  const app = createApp();
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
     console.log(`StadiumPulse AI backend listening on port ${port}`);
   });
 }
 
-module.exports = { createApp };
+app.createApp = () => app;
+module.exports = app;
