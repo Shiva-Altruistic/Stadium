@@ -5,6 +5,7 @@ const {
   assertWithinLength,
   assertLanguageSupported,
   assertBatchSize,
+  assertNumericRange,
   sanitizeForPrompt,
   ValidationError,
 } = require('../src/security');
@@ -100,5 +101,42 @@ describe('sanitizeForPrompt', () => {
     const result = sanitizeForPrompt(attempt);
     expect(result).toContain('[ASSISTANT]:');
     expect(result).toContain('[Human]:');
+  });
+});
+
+describe('assertNumericRange', () => {
+  test('accepts a valid number within range', () => {
+    expect(assertNumericRange(50, 'density', 0, 100)).toBe(50);
+    expect(assertNumericRange('75', 'density', 0, 100)).toBe(75);
+  });
+
+  test('accepts boundary values (inclusive)', () => {
+    expect(assertNumericRange(0, 'density', 0, 100)).toBe(0);
+    expect(assertNumericRange(100, 'density', 0, 100)).toBe(100);
+  });
+
+  test('rejects a value below the minimum', () => {
+    expect(() => assertNumericRange(-1, 'density', 0, 100)).toThrow(ValidationError);
+  });
+
+  test('rejects a value above the maximum', () => {
+    expect(() => assertNumericRange(101, 'density', 0, 100)).toThrow(ValidationError);
+  });
+
+  test('rejects non-numeric input (NaN)', () => {
+    expect(() => assertNumericRange('abc', 'density', 0, 100)).toThrow(ValidationError);
+  });
+
+  test('rejects Infinity', () => {
+    expect(() => assertNumericRange(Infinity, 'density', 0, 100)).toThrow(ValidationError);
+  });
+
+  test('error includes the field name', () => {
+    try {
+      assertNumericRange(500, 'attendees', 1, 200_000);
+    } catch (err) {
+      expect(err).toBeInstanceOf(ValidationError);
+      expect(err.field).toBe('attendees');
+    }
   });
 });

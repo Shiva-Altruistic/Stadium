@@ -28,22 +28,50 @@
 const groqProvider = require('./providers/groq');
 const geminiProvider = require('./providers/gemini');
 
+/** Map of provider name -> provider module. */
 const PROVIDERS = { groq: groqProvider, gemini: geminiProvider };
+
+/** Map of provider name -> the env-var name that holds its API key. */
 const API_KEY_ENV_VAR = { groq: 'GROQ_API_KEY', gemini: 'GEMINI_API_KEY' };
 
+/** Milliseconds before an in-flight fetch is aborted and treated as failed. */
 const REQUEST_TIMEOUT_MS = 8000;
+
+/** How many times to retry after a transient 5xx before giving up. */
 const MAX_RETRIES = 1;
 
+/** Maximum number of cached responses kept in memory at any time. */
+const CACHE_MAX_SIZE = 100;
+
+/** Time-to-live for a cached response in milliseconds (5 minutes). */
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * Typed error for any failure that originates inside the GenAI layer.
+ * Carries an HTTP status code so the centralized error handler in server.js
+ * can map it to the correct response status without a switch/instanceof chain.
+ */
 class GenAIError extends Error {
+  /**
+   * @param {string} message - Human-readable description of the failure.
+   * @param {Error|undefined} [cause] - Underlying error that caused this one.
+   */
   constructor(message, cause) {
     super(message);
     this.name = 'GenAIError';
+    /** @type {number} HTTP status code to return to the client. */
     this.statusCode = 502;
+    /** @type {Error|undefined} */
     this.cause = cause;
   }
 }
 
-/** Reads env vars fresh on every call so tests can swap providers cleanly. */
+/**
+ * Reads env vars fresh on every call so tests can swap providers cleanly.
+ *
+ * @returns {{ provider: object, providerName: string, apiKey: string }}
+ * @throws {GenAIError} When the provider name is unknown or its key is absent.
+ */
 function resolveProvider() {
   const providerName = (process.env.GENAI_PROVIDER || 'groq').toLowerCase();
   const provider = PROVIDERS[providerName];
@@ -62,6 +90,15 @@ function resolveProvider() {
   return { provider, providerName, apiKey };
 }
 
+/**
+ * Wraps `fetch` with an AbortController timeout so no call can block
+ * indefinitely when a provider's API becomes unresponsive.
+ *
+ * @param {string} url - The endpoint URL to fetch.
+ * @param {RequestInit} options - Standard `fetch` options (method, headers, body).
+ * @param {number} timeoutMs - Milliseconds after which the request is aborted.
+ * @returns {Promise<Response>}
+ */
 async function callWithTimeout(url, options, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -72,9 +109,23 @@ async function callWithTimeout(url, options, timeoutMs) {
   }
 }
 
+/**
+ * In-memory LRU-style response cache keyed by the full request parameters.
+ * Avoids redundant model calls for identical repeated prompts within the TTL.
+ * @type {Map<string, { result: string, timestamp: number }>}
+ */
 const responseCache = new Map();
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes TTL
 
+/**
+ * Returns a cached response if one exists and has not expired.
+ *
+ * @param {string} system - Server-authored system prompt.
+ * @param {string} userContent - Sanitized user content.
+ * @param {number} maxTokens - Token budget for the response.
+ * @param {string} providerName - Active provider identifier (e.g. 'groq').
+ * @param {string} model - Active model identifier.
+ * @returns {string|null} The cached text response, or null on a cache miss.
+ */
 function getCachedResponse(system, userContent, maxTokens, providerName, model) {
   const key = JSON.stringify({ system, userContent, maxTokens, providerName, model });
   const cached = responseCache.get(key);
@@ -84,9 +135,21 @@ function getCachedResponse(system, userContent, maxTokens, providerName, model) 
   return null;
 }
 
+/**
+ * Stores a successful response in the in-memory cache.
+ * Evicts the oldest entry when the cache is at capacity.
+ *
+ * @param {string} system - Server-authored system prompt.
+ * @param {string} userContent - Sanitized user content.
+ * @param {number} maxTokens - Token budget for the response.
+ * @param {string} providerName - Active provider identifier.
+ * @param {string} model - Active model identifier.
+ * @param {string} result - The text response to cache.
+ */
 function setCachedResponse(system, userContent, maxTokens, providerName, model, result) {
   const key = JSON.stringify({ system, userContent, maxTokens, providerName, model });
-  if (responseCache.size >= 100) {
+  if (responseCache.size >= CACHE_MAX_SIZE) {
+    // Evict the oldest entry (Map preserves insertion order).
     const oldestKey = responseCache.keys().next().value;
     responseCache.delete(oldestKey);
   }
@@ -95,10 +158,14 @@ function setCachedResponse(system, userContent, maxTokens, providerName, model, 
 
 /**
  * Sends one turn to whichever provider is configured and returns plain text.
+ * Checks the in-memory cache first, then calls the provider with one bounded
+ * retry on transient 5xx failures. Never retries on 4xx (client errors).
  *
- * @param {string} system      - Server-authored system prompt for this feature.
+ * @param {string} system - Server-authored system prompt for this feature.
  * @param {string} userContent - Sanitized, fenced user content (never raw).
- * @param {number} maxTokens
+ * @param {number} [maxTokens=400] - Maximum number of tokens in the response.
+ * @returns {Promise<string>} Plain-text model response.
+ * @throws {GenAIError} On provider misconfiguration, 4xx, or exhausted retries.
  */
 async function generate(system, userContent, maxTokens = 400) {
   const { provider, providerName, apiKey } = resolveProvider();

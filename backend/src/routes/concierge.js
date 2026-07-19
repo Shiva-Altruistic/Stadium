@@ -1,5 +1,21 @@
 'use strict';
 
+/**
+ * concierge.js
+ * ---------------------------------------------------------------------------
+ * POST /api/concierge — Multilingual AI fan concierge for FIFA World Cup 2026.
+ *
+ * Accepts a fan's free-text question, the preferred response language, and an
+ * optional venue context string, then returns a plain-text answer from the
+ * configured GenAI provider. All AI calls are server-side; the browser only
+ * sees the formatted reply, never the API key or the raw system prompt.
+ *
+ * Input safety:
+ *   - `message`      — length-capped and fenced inside <fan_message> tags.
+ *   - `language`     — allow-listed BCP-47 code; rejects unknowns at 400.
+ *   - `venueContext` — length-capped; falls back to built-in venue facts if absent.
+ */
+
 const express = require('express');
 const genai = require('../genaiClient');
 const {
@@ -10,6 +26,18 @@ const {
 
 const router = express.Router();
 
+/**
+ * Maximum length for a client-supplied venue context override.
+ * Kept below DEFAULT_VENUE_CONTEXT to prevent context-stuffing attacks.
+ * @type {number}
+ */
+const MAX_VENUE_CONTEXT_LENGTH = 1500;
+
+/**
+ * System prompt for the fan concierge.
+ * Authored server-side; never built from or influenced by client input.
+ * @type {string}
+ */
 const SYSTEM_PROMPT = `You are the StadiumPulse AI Concierge for a FIFA World Cup 2026 venue.
 You help fans with: wayfinding inside and around the stadium, accessibility
 accommodations (step-free routes, sensory rooms, assistive listening, wheelchair
@@ -34,6 +62,7 @@ Rules:
  * from out of the box. A real deployment replaces this with actual venue
  * operations data (or has the frontend pass live venueContext per stadium —
  * the route already accepts an override, see below).
+ * @type {string}
  */
 const DEFAULT_VENUE_CONTEXT = `
 Gates: Gate 1 (Main Plaza, general admission, Sections 100-106) · Gate 2
@@ -57,7 +86,18 @@ points at Concourse North, Concourse South, and the Fan Zone entrance.
 
 /**
  * POST /api/concierge
- * body: { message: string, language: string, venueContext?: string }
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ *
+ * Body parameters:
+ * @param {string} req.body.message - Fan's question (required, max 2000 chars).
+ * @param {string} req.body.language - BCP-47 language code for the reply (required).
+ * @param {string} [req.body.venueContext] - Optional per-stadium context override.
+ *
+ * Response:
+ * @returns {{ reply: string, language: string }}
  */
 router.post('/', async (req, res, next) => {
   try {
@@ -68,7 +108,7 @@ router.post('/', async (req, res, next) => {
     const cleanContext = assertWithinLength(
       venueContext || DEFAULT_VENUE_CONTEXT,
       'venueContext',
-      1500,
+      MAX_VENUE_CONTEXT_LENGTH,
     );
 
     const userContent = [

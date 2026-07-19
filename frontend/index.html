@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B8A93" />
+  <link rel="canonical" href="https://smart-stadiums-tournament-operations.vercel.app/" />
   <title>StadiumPulse AI — FIFA World Cup 2026 Smart Stadium Operations</title>
   <meta name="description" content="GenAI-enabled navigation, crowd management, accessibility, transportation, sustainability, multilingual assistance, and operational intelligence for FIFA World Cup 2026 venues." />
 
@@ -18,8 +20,10 @@
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <div id="live-region" class="visually-hidden" role="status" aria-live="polite"></div>
 
-  <header class="app-header">
-    <p class="wordmark">StadiumPulse <span aria-hidden="true">AI</span><span class="tagline">FIFA World Cup 2026 · Smart Stadium Ops</span></p>
+  <header class="app-header" role="banner">
+    <p class="wordmark">
+      StadiumPulse <span aria-hidden="true">AI</span><span class="tagline">FIFA World Cup 2026 · Smart Stadium Ops</span>
+    </p>
 
     <nav class="persona-tabs" role="tablist" aria-label="Choose your role">
       <button role="tab" id="tab-fan" aria-selected="true" tabindex="0" aria-controls="view-fan">Fan</button>
@@ -39,14 +43,14 @@
   <section class="pulse-screen" aria-label="Live operations pulse">
     <div class="pulse-screen-inner">
       <span class="pulse-dot" aria-hidden="true"></span>
-      <span class="pulse-live-label">LIVE</span>
-      <span class="pulse-clock" id="clock">--:--</span>
+      <span class="pulse-live-label" aria-label="Live feed">LIVE</span>
+      <span class="pulse-clock" id="clock" aria-label="Current time">--:--</span>
       <p class="pulse-message" id="pulse-message" aria-live="off">Loading live status…</p>
     </div>
   </section>
 
   <main id="main-content">
-    <div id="error-banner" class="error-banner" role="alert" hidden></div>
+    <div id="error-banner" class="error-banner" role="alert" aria-live="assertive" hidden></div>
 
     <!-- ============================= FAN VIEW ============================= -->
     <section id="view-fan" class="persona-view" role="tabpanel" aria-labelledby="tab-fan">
@@ -54,9 +58,15 @@
         <div class="col-left">
           <div class="panel" data-accent="pitch">
             <h2 id="status-title">Live Stadium Status</h2>
-            <div class="status-row"><span class="status-label" id="gate-status-label">Gate Status</span><span class="status-value" id="gate-status">—</span></div>
-            <div class="status-row"><span class="status-label" id="crowd-status-label">Crowd Density</span><span class="status-value" id="crowd-status">—</span></div>
-            <div class="broadcast-banner" id="broadcast-banner">
+            <div class="status-row">
+              <span class="status-label" id="gate-status-label">Gate Status</span>
+              <span class="status-value" id="gate-status" aria-live="polite">—</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label" id="crowd-status-label">Crowd Density</span>
+              <span class="status-value" id="crowd-status" aria-live="polite">—</span>
+            </div>
+            <div class="broadcast-banner" id="broadcast-banner" aria-live="polite">
               <span class="broadcast-label">Ops Team update</span>
               <p class="broadcast-text" id="fan-broadcast-text">No active fan update.</p>
             </div>
@@ -67,25 +77,29 @@
           <div class="panel" data-accent="coral">
             <h2 id="report-issue-title">Report your issue</h2>
             <p class="panel-sub" id="report-issue-sub">Tell us what's wrong — your report goes straight to the ops team.</p>
-            <form id="incident-form">
+            <form id="incident-form" aria-labelledby="report-issue-title">
               <label for="incident-input" class="visually-hidden">Describe what you're seeing</label>
-              <textarea id="incident-input" rows="3" class="full-width" maxlength="500" placeholder="e.g. Can't find step-free route to Section 208" required></textarea>
+              <textarea id="incident-input" rows="3" class="full-width" maxlength="500"
+                placeholder="e.g. Can't find step-free route to Section 208" required></textarea>
               <div class="inline-row">
                 <button type="submit" class="primary-button mt-sm" id="incident-submit">Submit report</button>
                 <button type="button" class="ghost-button mt-sm" id="incident-example">Try example</button>
               </div>
             </form>
-            <p class="report-confirm" id="fan-report-confirm" hidden role="status">Report received — the ops team has been notified.</p>
+            <p class="report-confirm" id="fan-report-confirm" hidden role="status" aria-live="polite">
+              Report received — the ops team has been notified.
+            </p>
           </div>
         </div>
         <div class="col-right">
           <div class="panel chat-panel" data-accent="gold">
             <h2>AI Support <span class="eyebrow">multilingual · answers in your selected language</span></h2>
-            <div class="chat-log" id="chat-log" role="log" aria-label="Conversation with the AI concierge"></div>
-            <div class="chip-row" id="chat-chips"></div>
-            <form id="chat-form" class="chat-form">
+            <div class="chat-log" id="chat-log" role="log" aria-label="Conversation with the AI concierge" aria-live="polite"></div>
+            <div class="chip-row" id="chat-chips" aria-label="Quick questions"></div>
+            <form id="chat-form" class="chat-form" aria-label="Ask the AI concierge">
               <label for="chat-input" class="visually-hidden">Ask the concierge a question</label>
-              <input type="text" id="chat-input" maxlength="2000" required />
+              <input type="text" id="chat-input" maxlength="2000" required
+                autocomplete="off" />
               <button type="submit" class="primary-button" id="chat-submit">Ask</button>
             </form>
           </div>
@@ -93,66 +107,165 @@
       </div>
     </section>
 
-    <!-- ============================= OPS VIEW (Staff + Organizer merged) ============================= -->
+    <!-- ============================= OPS VIEW ============================= -->
     <section id="view-ops" class="persona-view" role="tabpanel" aria-labelledby="tab-ops" hidden>
       <div class="view-grid two-col">
         <div class="col-left">
           <div class="panel" data-accent="coral">
             <h2>Field report logs</h2>
             <p class="panel-sub">AI-triaged reports from fans and staff, newest first.</p>
-            <ul class="incident-list" id="incident-list" aria-label="Recent field reports"></ul>
+            <ul class="incident-list" id="incident-list" aria-label="Recent field reports" aria-live="polite"></ul>
             <p class="logs-empty" id="logs-empty">No reports yet — fan and staff submissions will appear here.</p>
           </div>
           <div class="panel" data-accent="pitch">
             <h2>Send a fan update</h2>
             <p class="panel-sub">Broadcast a message to the live stadium status panel on the Fan tab.</p>
-            <form id="ops-broadcast-form">
+            <form id="ops-broadcast-form" aria-label="Broadcast a message to fans">
               <label for="ops-broadcast-input" class="visually-hidden">Message to broadcast to fans</label>
-              <textarea id="ops-broadcast-input" rows="2" class="full-width" maxlength="240" placeholder="e.g. Gate 7 is now open — follow staff directions to the west concourse"></textarea>
+              <textarea id="ops-broadcast-input" rows="2" class="full-width" maxlength="240"
+                placeholder="e.g. Gate 7 is now open — follow staff directions to the west concourse"></textarea>
               <button type="submit" class="primary-button mt-sm">Send to fans</button>
             </form>
           </div>
           <div class="panel" data-accent="blue">
             <h2>Quick translate <span class="eyebrow">for talking with fans</span></h2>
             <label for="translate-input" class="visually-hidden">Text to translate</label>
-            <textarea id="translate-input" rows="2" class="full-width" maxlength="600" placeholder="Type an announcement in English…"></textarea>
+            <textarea id="translate-input" rows="2" class="full-width" maxlength="600"
+              placeholder="Type an announcement in English…"></textarea>
             <div class="inline-row">
               <label for="translate-target" class="label-sm">to</label>
-              <select id="translate-target"></select>
+              <select id="translate-target" aria-label="Target language for translation"></select>
               <button type="button" class="primary-button" id="translate-submit">Translate</button>
             </div>
             <div class="advisory-output" id="translate-output" aria-live="polite">Translation will appear here.</div>
           </div>
+
+          <!-- ---- Sustainability Advisor (NEW) ---- -->
+          <div class="panel" data-accent="green">
+            <h2>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                style="vertical-align:-2px;margin-right:6px">
+                <path d="M2 22c0-7 5-10 10-10s10 3 10 10"/><path d="M12 12C12 7 9 3 4 2c0 5 3 9 8 10"/></svg>
+              Sustainability score
+              <span class="eyebrow">per-event environmental metrics</span>
+            </h2>
+            <form id="sustainability-form" aria-label="Sustainability metrics">
+              <div class="sus-grid">
+                <div class="sus-field">
+                  <label for="sus-venue" class="label-sm">Venue name</label>
+                  <input type="text" id="sus-venue" class="full-width" maxlength="120"
+                    placeholder="e.g. Levi's Stadium" value="FIFA World Cup 2026 Venue" />
+                </div>
+                <div class="sus-field">
+                  <label for="sus-attendees" class="label-sm">Attendees</label>
+                  <input type="number" id="sus-attendees" min="1" max="200000" value="65000" />
+                </div>
+                <div class="sus-field">
+                  <label for="sus-water" class="label-sm">Water used (L)</label>
+                  <input type="number" id="sus-water" min="0" value="3200000" />
+                </div>
+                <div class="sus-field">
+                  <label for="sus-energy" class="label-sm">Energy used (kWh)</label>
+                  <input type="number" id="sus-energy" min="0" value="680000" />
+                </div>
+                <div class="sus-field">
+                  <label for="sus-recycling" class="label-sm">Waste recycled (%)</label>
+                  <input type="number" id="sus-recycling" min="0" max="100" value="65" />
+                </div>
+                <div class="sus-field">
+                  <label for="sus-carbon" class="label-sm">Carbon offset (t CO₂e)</label>
+                  <input type="number" id="sus-carbon" min="0" value="100" />
+                </div>
+              </div>
+              <button type="submit" class="primary-button mt-sm">Analyse sustainability</button>
+            </form>
+            <div class="advisory-output" id="sustainability-output" aria-live="polite">
+              Enter metrics above and click Analyse.
+            </div>
+          </div>
         </div>
+
         <div class="col-right">
           <div class="panel panel-full" data-accent="blue">
             <h2>Crowd density &amp; operational intelligence <span class="eyebrow">gate scans vs. reconciled seated count</span></h2>
-            <form id="crowd-form">
+            <form id="crowd-form" aria-label="Crowd density advisory">
               <div id="zone-rows"><!-- populated by app.js --></div>
               <button type="submit" class="primary-button mt-sm">Generate advisory</button>
             </form>
             <div class="advisory-output" id="advisory-output" aria-live="polite">Advisory will appear here.</div>
+          </div>
+
+          <!-- ---- Volunteer Task Assignment (NEW) ---- -->
+          <div class="panel panel-full" data-accent="coral">
+            <h2>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                style="vertical-align:-2px;margin-right:6px">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Volunteer task assignment
+              <span class="eyebrow">AI real-time decision support for duty managers</span>
+            </h2>
+            <form id="volunteer-form" aria-label="Volunteer task assignment">
+              <div class="sus-grid">
+                <div class="sus-field">
+                  <label for="vol-zone" class="label-sm">Zone / area name</label>
+                  <input type="text" id="vol-zone" class="full-width" maxlength="80"
+                    placeholder="e.g. Concourse North — Gate 3" value="Concourse North — Gate 3" />
+                </div>
+                <div class="sus-field">
+                  <label for="vol-staff" class="label-sm">Volunteers available</label>
+                  <input type="number" id="vol-staff" min="0" max="500" value="8" />
+                </div>
+                <div class="sus-field">
+                  <label for="vol-crowd" class="label-sm">Crowd level</label>
+                  <select id="vol-crowd" aria-label="Current crowd level">
+                    <option value="low">Low</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="high" selected>High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+                <div class="sus-field sus-field--wide">
+                  <label for="vol-incident" class="label-sm">Active incident (optional)</label>
+                  <input type="text" id="vol-incident" class="full-width" maxlength="300"
+                    placeholder="e.g. Fan reported blocked exit near Row G" />
+                </div>
+              </div>
+              <button type="submit" class="primary-button mt-sm">Generate task list</button>
+            </form>
+            <div class="advisory-output" id="volunteer-output" aria-live="polite">
+              Task assignments will appear here.
+            </div>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="app-footer">
+  <footer class="app-footer" role="contentinfo">
     <span>StadiumPulse AI — Challenge 4: Smart Stadiums &amp; Tournament Operations · Prototype for demonstration purposes</span>
   </footer>
 
   <!-- Emergency SOS: fixed, always reachable, real modal flow -->
-  <button type="button" class="sos-fab" id="sos-trigger" aria-haspopup="dialog">
-  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-  <span>SOS</span>
-</button>
+  <button type="button" class="sos-fab" id="sos-trigger" aria-haspopup="dialog"
+    aria-label="Emergency SOS — tap to report an emergency">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"
+      fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    <span aria-hidden="true">SOS</span>
+  </button>
 
-<div class="sos-overlay" id="sos-overlay" hidden>
-  <div class="sos-modal" role="dialog" aria-modal="true" aria-labelledby="sos-title" id="sos-modal">
-    <div id="sos-body"></div>
+  <div class="sos-overlay" id="sos-overlay" hidden>
+    <div class="sos-modal" role="dialog" aria-modal="true" aria-labelledby="sos-title"
+      id="sos-modal" tabindex="-1">
+      <div id="sos-body"></div>
+    </div>
   </div>
-</div>
 
   <script src="js/utils.js"></script>
   <script src="js/api.js"></script>

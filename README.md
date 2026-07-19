@@ -6,17 +6,17 @@
 
 *Challenge 4: Smart Stadiums & Tournament Operations*
 
-[![CI](https://img.shields.io/github/actions/workflow/status/Adityaraj1969/Smart-Stadiums-Tournament-Operations/ci.yml?branch=main&style=for-the-badge&label=tests)](https://github.com/Adityaraj1969/Smart-Stadiums-Tournament-Operations/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/Shiva-Altruistic/Stadium/ci.yml?branch=main&style=for-the-badge&label=tests)](https://github.com/Shiva-Altruistic/Stadium/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
 [![Express](https://img.shields.io/badge/Express-4.x-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com)
 [![Groq](https://img.shields.io/badge/GenAI-Groq-F55036?style=flat-square&logo=groq&logoColor=white)](https://console.groq.com)
 [![Gemini](https://img.shields.io/badge/GenAI-Gemini-4285F4?style=flat-square&logo=googlegemini&logoColor=white)](https://aistudio.google.com)
-[![Tests](https://img.shields.io/badge/tests-65%20passing-brightgreen?style=flat-square)](#-testing)
-[![Coverage](https://img.shields.io/badge/coverage-~98%25-brightgreen?style=flat-square)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-87%20passing-brightgreen?style=flat-square)](#-testing)
+[![Coverage](https://img.shields.io/badge/coverage-~99%25-brightgreen?style=flat-square)](#-testing)
 
-**[📂 Repository](https://github.com/Shiva-Altruistic/Stadium)** · *🚀 [Live Vercel Deployment](https://stadiumpulse-ai-rho.vercel.app)*
+**[📂 Repository](https://github.com/Shiva-Altruistic/Stadium)** · **[🚀 Live Demo](https://stadium-pi.vercel.app)**
 
 </div>
 
@@ -37,10 +37,6 @@ duty manager asking *"what do I do about Concourse South at 91% density?"*
 
 ## 📑 Table of contents
 
-- [Chosen Vertical](#-chosen-vertical)
-- [Approach & Logic](#-approach--logic)
-- [How the Solution Works](#-how-the-solution-works)
-- [Assumptions Made](#-assumptions-made)
 - [Two views, one platform](#-two-views-one-platform)
 - [Feature mapping](#-how-this-maps-to-the-brief)
 - [Architecture](#-architecture)
@@ -51,34 +47,6 @@ duty manager asking *"what do I do about Concourse South at 91% density?"*
 - [Testing](#-testing)
 - [Efficiency](#-efficiency)
 - [Limitations & roadmap](#-honest-limitations--roadmap)
-
-## 🎯 Chosen Vertical
-
-This project targets **Challenge 4: Smart Stadiums & Tournament Operations** for the **FIFA World Cup 2026**. It focuses on solving real-time venue communication gaps, crowd density management, accessibility wayfinding, transport coordination, multilingual volunteer-fan translation, and duties manager triage.
-
-## 🧠 Approach & Logic
-
-Our design philosophy focuses on **reliability, security, and low-latency response delivery**:
-1. **Client/Server Split**: Frontend does not talk directly to LLMs. All calls flow through Express `/api/*` endpoints. This keeps API keys secure on the server side and protects the application from credential leaks.
-2. **Provider-Agnostic Model Client**: The backend wraps Groq and Gemini clients in a unified interface. You can switch LLM engines by editing a single environment variable (`GENAI_PROVIDER=groq|gemini`) without altering routing code or test assertions.
-3. **In-Memory Cache Layer**: LLM calls are cached on the server for 5 minutes. Similar questions ("where is the sensory room?") or crowd sensor states get answered instantly, conserving rate limits and reducing user wait times.
-4. **Regular Expression Escaping**: In contrast to standard DOM element creation hacks which create garbage-collection spikes, we use custom high-performance regex replacement helper functions for frontend output sanitization.
-5. **Native CSS Variables for System Aesthetics**: We use CSS Custom Properties to automatically apply high-contrast dark mode to dark-mode enabled operating systems, promoting high accessibility and design aesthetics.
-
-## ⚙️ How the Solution Works
-
-StadiumPulse AI is designed around a unified status picture:
-1. **Live Scanning Loop**: Reconciled data feeds (estimated seated vs scanned ticket metrics) drive the status widgets in both tabs.
-2. **AI Triage Flow**: Fan-submitted reports are instantly triaged by the model. The model extracts severity (`low|medium|high|critical`), classifies it (`medical|security|crowd|etc`), recommends actions, and routes the ticket to the Ops Team list.
-3. **Multilingual Concierge**: Fans select their language, and all AI Concierge responses are translated on the fly while utilizing pre-compiled facts (restrooms, sensory room gates, etc) to ensure the AI never invents routes.
-4. **Quick Translate**: Volunteers type in English and instantly translate instructions into 8 target languages for direct fan assistance.
-5. **Real-time Operations Updates**: The Ops Team can broadcast critical directives directly onto the Fan Status dashboard.
-
-## 📋 Assumptions Made
-
-- **Sensor Data Structure**: We assume that turnstile scan numbers and seated seat counts will be parsed into an JSON array matching `[{ zone, densityPercent, trend }]` format on import.
-- **Rate-limit Caps**: We assume that free-tier API endpoints have rate-limits of around 30 requests/minute, hence the use of server-side caching and aggressive validation limits (20kb body cap, 20 req/min rate limit).
-- **Authentication Scope**: For this prototype, we assume that network isolation handles role access, so we do not enforce multi-tenant OAuth authentication for the Ops Team tab.
 
 ## 🧭 Two views, one platform
 
@@ -99,10 +67,10 @@ operational picture:
 | 👥 **Crowd management** | Ops Team view turns per-zone density readings into live status updates and fan-visible operational alerts. |
 | ♿ **Accessibility** | Dedicated concierge topic for step-free routes, sensory rooms, and assistive listening — plus the UI itself is fully accessible (see below). |
 | 🚌 **Transportation** | Concierge topic for shuttles, transit lines, and rideshare pickup zones. |
-| 🌱 **Sustainability** | Concierge topic for refill/recycling points and lower-carbon travel choices. |
-| 🌐 **Multilingual assistance** | Every concierge and translate call is language-parameterized (11 languages); staff quick-translate bridges volunteer↔fan language gaps live. |
-| 🧠 **Operational intelligence** | Incident Summary consolidates scattered free-text field reports into one severity-ranked brief for a duty manager, and Ops Team messages can be broadcast to the fan live-status panel. |
-| ⚡ **Real-time decision support** | Crowd advisories and incident briefs are generated on demand from live input and always end in a concrete, named next action. |
+| 🌱 **Sustainability** | Dedicated Sustainability Advisor panel: ops staff enter per-event metrics (water, energy, waste recycling, carbon offset), receive a 0–100 score with letter grade, and get GenAI-generated improvement recommendations. |
+| 🌐 **Multilingual assistance** | Every concierge and translate call is language-parameterized (17 languages); staff quick-translate bridges volunteer↔fan language gaps live. |
+| 🧠 **Operational intelligence** | Incident Summary consolidates scattered free-text field reports into one severity-ranked brief for a duty manager; Ops Team messages can be broadcast to the fan live-status panel. Volunteer Task Assignment uses GenAI to generate prioritized task lists and escalation decisions for duty managers in real time. |
+| ⚡ **Real-time decision support** | Crowd advisories, incident briefs, sustainability scores, and volunteer task assignments are all generated on demand from live input — every response ends in a concrete, named next action. |
 
 ## 🏗️ Architecture
 
@@ -138,10 +106,12 @@ Smart-Stadiums-Tournament-Operations/
 │       │   ├── groq.js             Groq adapter (default) — OpenAI-compatible, free, no card needed
 │       │   └── gemini.js           Gemini adapter (alternate) — Google's own request shape
 │       └── routes/
-│           ├── concierge.js        Fan AI Concierge — multilingual Q&A with venue context
-│           ├── crowdAdvisory.js    Organizer crowd-density → actionable advisory generation
-│           ├── incidentSummary.js  Staff incident reports → severity-ranked duty-manager brief
-│           └── translate.js        Quick staff↔fan language translation (11 languages)
+│           ├── concierge.js             Fan AI Concierge — multilingual Q&A with venue context
+│           ├── crowdAdvisory.js         Organizer crowd-density → actionable advisory generation
+│           ├── incidentSummary.js       Staff incident reports → severity-ranked duty-manager brief
+│           ├── sustainabilityAdvisor.js Venue sustainability scoring and GenAI improvement advisory
+│           ├── translate.js             Quick staff↔fan language translation (17 languages)
+│           └── volunteerTask.js         Real-time volunteer task assignment for duty managers
 │
 ├── frontend/                       Static, CDN-free UI — talks only to this app's own backend
 │   ├── index.html                  Semantic, ARIA-labeled two-tab interface (Fan + Ops Team)
@@ -153,12 +123,14 @@ Smart-Stadiums-Tournament-Operations/
 │       ├── app.js                  UI wiring: tab logic, event handlers, ops→fan broadcast flow
 │       └── utils.js                Pure helpers: escapeHtml, debounce, density threshold classifiers
 │
-├── backend/tests/                  55 automated tests — Jest + Supertest
-│   ├── security.test.js            16 tests: escaping, validation, prompt-injection fencing
+├── backend/tests/                  77 automated tests — Jest + Supertest
+│   ├── security.test.js            23 tests: escaping, validation, prompt-injection, numeric range
 │   ├── genaiClient.test.js         8 tests: provider switching, retries, error handling
 │   ├── providers.groq.test.js      8 tests: request shape, reasoning_effort, response parsing
 │   ├── providers.gemini.test.js    5 tests: request shape, response parsing, safety-block handling
-│   └── routes.test.js              18 tests: all four endpoints — happy paths, validation, failures
+│   ├── routes.test.js              18 tests: all four original endpoints — happy paths, validation
+│   ├── routes.sustainability.test.js  7 tests: sustainability advisor — scoring, validation, errors
+│   └── routes.volunteer.test.js    8 tests: volunteer tasks — parsing, validation, injection fencing
 │
 ├── frontend/tests/                 10 automated tests — Jest + jsdom
 │   └── utils.test.js               XSS escaping, debounce timing, density threshold classifiers
@@ -183,8 +155,8 @@ Smart-Stadiums-Tournament-Operations/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Adityaraj1969/Smart-Stadiums-Tournament-Operations.git
-cd Smart-Stadiums-Tournament-Operations
+git clone https://github.com/Shiva-Altruistic/Stadium.git
+cd Stadium
 
 # 2. Install backend dependencies and configure environment
 cd backend
@@ -196,7 +168,7 @@ cp .env.example .env
 #   GEMINI_API_KEY=your_key_here # free key → https://aistudio.google.com/apikey
 
 # 3. Run backend tests (optional but recommended)
-npm test                         # 55 backend tests
+npm test                         # 77 backend tests
 
 # 4. Start the server — serves both the API and the frontend
 npm start                        # → http://localhost:3000
@@ -249,13 +221,15 @@ The full application — UI and API — is served from **one process** at `http:
 
 | Suite | Count | What it covers |
 |---|---|---|
-| `backend/tests/security.test.js` | 16 | Escaping, validation, prompt-injection fencing |
+| `backend/tests/security.test.js` | 23 | Escaping, validation, prompt-injection fencing, numeric range guard |
 | `backend/tests/genaiClient.test.js` | 8 | Provider selection/switching, retries, error handling |
 | `backend/tests/providers.groq.test.js` | 8 | Request shape, `reasoning_effort` handling, response parsing |
 | `backend/tests/providers.gemini.test.js` | 5 | Request shape, response parsing, safety-block handling |
-| `backend/tests/routes.test.js` | 18 | All four endpoints — happy paths, validation, failures, 404s |
+| `backend/tests/routes.test.js` | 18 | All four original endpoints — happy paths, validation, failures, 404s |
+| `backend/tests/routes.sustainability.test.js` | 7 | Sustainability advisor — scoring algorithm, validation, GenAI errors |
+| `backend/tests/routes.volunteer.test.js` | 8 | Volunteer tasks — parsing, validation, prompt-injection fencing, errors |
 | `frontend/tests/utils.test.js` | 10 | XSS escaping, debounce timing, density thresholds |
-| **Total** | **65 passing**, ~98% statement coverage on `backend/src` | |
+| **Total** | **87 passing**, ~99% statement coverage on `backend/src` | |
 
 ```bash
 cd backend && npm test    # backend suite
@@ -280,13 +254,15 @@ cd frontend && npm test   # frontend suite
 - No authentication yet on the Ops Team tab — any user can access the staff/organizer tools.
 - Both free providers are rate-limited (Groq ~30 req/min); a multi-stadium rollout would move to a
   paid tier — the one-line `GENAI_PROVIDER` switch means that upgrade touches no route or test.
-- 🚀 **Live Vercel Deployment** — The application is live and hosted publicly at [stadiumpulse-ai-rho.vercel.app](https://stadiumpulse-ai-rho.vercel.app).
+- 🚀 **Live deployment** — [stadium-pi.vercel.app](https://stadium-pi.vercel.app) — add `GROQ_API_KEY` as an environment variable in Vercel Project Settings to enable AI features.
 
 ---
 
 <div align="center">
 
 Built for **Challenge 4: Smart Stadiums & Tournament Operations** · FIFA World Cup 2026
+
+[🚀 Live Demo](https://stadium-pi.vercel.app) · [📂 Repository](https://github.com/Shiva-Altruistic/Stadium)
 
 [MIT License](LICENSE)
 
