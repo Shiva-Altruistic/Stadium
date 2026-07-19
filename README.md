@@ -16,7 +16,7 @@
 [![Tests](https://img.shields.io/badge/tests-87%20passing-brightgreen?style=flat-square)](#-testing)
 [![Coverage](https://img.shields.io/badge/coverage-~99%25-brightgreen?style=flat-square)](#-testing)
 
-**[📂 Repository](https://github.com/Shiva-Altruistic/Stadium)** · **[🚀 Live Demo](https://stadium-pi.vercel.app)**
+**[📂 Repository](https://github.com/Shiva-Altruistic/Stadium)** · **[🚀 Live Demo](https://stadiumpulse-ai-rho.vercel.app)**
 
 </div>
 
@@ -254,7 +254,7 @@ cd frontend && npm test   # frontend suite
 - No authentication yet on the Ops Team tab — any user can access the staff/organizer tools.
 - Both free providers are rate-limited (Groq ~30 req/min); a multi-stadium rollout would move to a
   paid tier — the one-line `GENAI_PROVIDER` switch means that upgrade touches no route or test.
-- 🚀 **Live deployment** — [stadium-pi.vercel.app](https://stadium-pi.vercel.app) — add `GROQ_API_KEY` as an environment variable in Vercel Project Settings to enable AI features.
+- 🚀 **Live deployment** — [stadium-pi.vercel.app](https://stadiumpulse-ai-rho.vercel.app) — add `GROQ_API_KEY` as an environment variable in Vercel Project Settings to enable AI features.
 
 ---
 
@@ -262,7 +262,7 @@ cd frontend && npm test   # frontend suite
 
 Built for **Challenge 4: Smart Stadiums & Tournament Operations** · FIFA World Cup 2026
 
-[🚀 Live Demo](https://stadium-pi.vercel.app) · [📂 Repository](https://github.com/Shiva-Altruistic/Stadium)
+[🚀 Live Demo](https://stadiumpulse-ai-rho.vercel.app) · [📂 Repository](https://github.com/Shiva-Altruistic/Stadium)
 
 [MIT License](LICENSE)
 
