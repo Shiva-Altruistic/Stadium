@@ -146,4 +146,7 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createApp };
+// Named export for tests; default export of `app` for Vercel's @vercel/node adapter
+// (Vercel requires module.exports to be the Express app or a request handler).
+module.exports = app;
+module.exports.createApp = createApp;
